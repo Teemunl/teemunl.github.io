@@ -44,23 +44,25 @@ function processCommand(command) {
 }
 
 cvApp.addEventListener('click', () => {
-  openApp('Liimatta_Teemu.pdf');
+    openCV();
 });
 
 closeBtn.addEventListener('click', () => {
   closeApp();
 });
-
-function openApp(url) {
-        const content = `
-          <iframe src="${url}" width="100%" height="100%" frameborder="0"></iframe>
-        `;
-        
-        document.getElementById('container-content').innerHTML = content;
-        simpleContainer.style.display = 'block';
-}
-
-
+function openCV() {
+    const pdfRepoUrl = 'https://github.com/Teemunl/teemunl.github.io/raw/main/Liimatta_Teemu.pdf';
+    const content = `
+      <iframe src="https://docs.google.com/viewer?url=${encodeURIComponent(pdfRepoUrl)}&embedded=true" width="100%" height="100%" frameborder="0"></iframe>
+    `;
+    
+    document.getElementById('container-content').innerHTML= content;
+    simpleContainer.style.display = 'block';
+  }
+  
+  cvApp.addEventListener('click', () => {
+    openCV();
+  });
 function closeApp() {
         document.getElementById('container-content').innerHTML = '';
         simpleContainer.style.display = 'none';
@@ -82,10 +84,10 @@ async function openGitHub() {
     const data = await fetchGitHubData();
     if (data) {
       const content = `
-        <h2>${data.name}</h2>
+        <h2>${"Teemu Liimatta"}</h2>
         <img src="${data.avatar_url}" width="100" height="100">
         <p>Username: ${data.login}</p>
-        <p>Public Repositories: ${data.repos}</p>
+        <p>Public Repositories: ${data.repos_url}</p>
         <p>Followers: ${data.followers}</p>
         <p>Following: ${data.following}</p>
         <a href="${data.html_url}" target="_blank">Visit Profile</a>
