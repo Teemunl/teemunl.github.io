@@ -44,10 +44,6 @@ function processCommand(command) {
   }
 }
 
-githubApp.addEventListener('click', () => {
-  openApp('https://github.com/Teemunl');
-});
-
 cvApp.addEventListener('click', () => {
   openApp('Liimatta_Teemu.pdf');
 });
@@ -65,3 +61,26 @@ function closeApp() {
   containerIframe.src = '';
   simpleContainer.style.display = 'none';
 }
+
+async function openGitHub() {
+    const response = await fetch('https://api.github.com/Teemunl');
+    const data = await response.json;
+
+
+    const content = `
+    <h2> ${data.name}</h2>
+    <img src= "${data.avatar_url}" width ="100" height "100">
+    <p> Username: ${data.login} </p>
+    <p> Public Repositories: ${data.repos} </p>
+    <p> Username: ${data.followers} </p>
+    <p> Username: ${data.following} </p>
+    <a href= "${data.html_url}" target = "_blank"> Visit Profile</a>
+    `;
+
+    document.getElementById('container-content').innerHTML = content;
+    simpleContainer.style.display = 'block';
+}
+
+githubApp.addEventListener('click', () => {
+    openGitHub();
+});
