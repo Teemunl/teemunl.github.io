@@ -4,7 +4,6 @@ const terminalOutput = document.getElementById('terminal-output');
 const githubApp = document.getElementById('github-app');
 const cvApp = document.getElementById('cv-app');
 const simpleContainer = document.getElementById('simple-container');
-const containerIframe = document.getElementById('container-iframe');
 const closeBtn = document.getElementById('close-btn');
 
 terminalInput.addEventListener('keydown', (e) => {
@@ -53,14 +52,20 @@ closeBtn.addEventListener('click', () => {
 });
 
 function openApp(url) {
-  containerIframe.src = url;
-  simpleContainer.style.display = 'block';
+        const content = `
+          <iframe src="${url}" width="100%" height="100%" frameborder="0"></iframe>
+        `;
+        
+        document.getElementById('container-content').innerHTML = content;
+        simpleContainer.style.display = 'block';
 }
 
+
 function closeApp() {
-  containerIframe.src = '';
-  simpleContainer.style.display = 'none';
+        document.getElementById('container-content').innerHTML = '';
+        simpleContainer.style.display = 'none';
 }
+
 async function fetchGitHubData() {
     try {
       const response = await fetch('https://api.github.com/users/Teemunl');
