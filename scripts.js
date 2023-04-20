@@ -61,25 +61,37 @@ function closeApp() {
   containerIframe.src = '';
   simpleContainer.style.display = 'none';
 }
-
+async function fetchGitHubData() {
+    try {
+      const response = await fetch('https://api.github.com/users/Teemunl');
+      if (!response.ok) {
+        throw new Error('Failed to fetch GitHub data');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
 async function openGitHub() {
-    const response = await fetch('https://api.github.com/Teemunl');
-    const data = await response.json;
-
-
-    const content = `
-    <h2> ${data.name}</h2>
-    <img src= "${data.avatar_url}" width ="100" height "100">
-    <p> Username: ${data.login} </p>
-    <p> Public Repositories: ${data.repos} </p>
-    <p> Username: ${data.followers} </p>
-    <p> Username: ${data.following} </p>
-    <a href= "${data.html_url}" target = "_blank"> Visit Profile</a>
-    `;
-
-    document.getElementById('container-content').innerHTML = content;
-    simpleContainer.style.display = 'block';
-}
+    const data = await fetchGitHubData();
+    if (data) {
+      const content = `
+        <h2>${data.name}</h2>
+        <img src="${data.avatar_url}" width="100" height="100">
+        <p>Username: ${data.login}</p>
+        <p>Public Repositories: ${data.repos}</p>
+        <p>Followers: ${data.followers}</p>
+        <p>Following: ${data.following}</p>
+        <a href="${data.html_url}" target="_blank">Visit Profile</a>
+      `;
+  
+      document.getElementById('container-content').innerHTML = content;
+      simpleContainer.style.display = 'block';
+    } else {
+      alert('Failed to fetch GitHub data. Please try again later.');
+    }
+  }
 
 githubApp.addEventListener('click', () => {
     openGitHub();
