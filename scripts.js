@@ -19,7 +19,7 @@ terminalInput.addEventListener('keydown', (e) => {
 function toggleTerminal() {
   if (terminal.style.display === 'none') {
     
-    terminalOutput.textContent += 'Commands available: cls, help, cv, github\n';
+      terminalOutput.textContent += 'Commands available: cls, help, cv, github\n';
     terminal.style.display = 'block';
   } else {
     terminal.style.display = 'none';
@@ -57,7 +57,7 @@ closeBtn.addEventListener('click', () => {
 function openCV() {
     const pdfRepoUrl = 'https://github.com/Teemunl/teemunl.github.io/raw/main/Liimatta_Teemu.pdf';
     const content = `
-      <iframe src="https://docs.google.com/viewer?url=${encodeURIComponent(pdfRepoUrl)}&embedded=true" width="100%" height="100%" frameborder="0"></iframe>
+      <iframe src="https://docs.google.com/viewer?url=${encodeURIComponent(pdfRepoUrl)}&embedded=true" width="100%" height="540" frameborder="0"></iframe>
     `;
     
     document.getElementById('container-content').innerHTML= content;

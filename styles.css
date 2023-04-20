@@ -20,6 +20,7 @@ body {
   align-items: left;
   margin: 0 1rem;
   cursor: pointer;
+  height: 10%;
 }
 
 .app img {
@@ -81,8 +82,8 @@ body {
     position: absolute;
     top: 10%;
     left: 10%;
-    width: 80%;
-    height: 80%;
+    width: 50%;
+    height: 50%;
     background-color: #ffffff;
     border: 2px solid #333;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
@@ -90,6 +91,7 @@ body {
   
   #container-iframe {
     border: none;
+    
   }
   
   .close-btn {
