@@ -51,7 +51,7 @@ closeBtn.addEventListener('click', () => {
   closeApp();
 });
 function openCV() {
-    const pdfRepoUrl = 'https://github.com/Teemunl/teemunl.github.io/raw/main/Liimatta_Teemu.pdf';
+    const pdfRepoUrl = 'Liimatta_Teemu.pdf';
     const content = `
       <iframe src="https://docs.google.com/viewer?url=${encodeURIComponent(pdfRepoUrl)}&embedded=true" width="100%" height="100%" frameborder="0"></iframe>
     `;
