@@ -18,6 +18,8 @@ terminalInput.addEventListener('keydown', (e) => {
 
 function toggleTerminal() {
   if (terminal.style.display === 'none') {
+    
+    terminalOutput.textContent += 'Commands available: cls, help, cv, github\n';
     terminal.style.display = 'block';
   } else {
     terminal.style.display = 'none';
@@ -25,6 +27,7 @@ function toggleTerminal() {
 }
 
 function processCommand(command) {
+    
   switch (command.toLowerCase()) {
     case 'cls':
       terminalOutput.textContent = '';
@@ -40,6 +43,7 @@ function processCommand(command) {
       break;
     default:
       terminalOutput.textContent += `Unknown command: ${command}\n`;
+      terminalOutput.textContent += 'Commands available: cls, help, cv, github\n';
   }
 }
 

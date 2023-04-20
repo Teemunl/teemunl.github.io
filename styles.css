@@ -9,15 +9,15 @@ body {
 
 .desktop {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: top;
+  align-items: top;
   height: 95vh;
 }
 
 .app {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: left;
   margin: 0 1rem;
   cursor: pointer;
 }
@@ -28,7 +28,7 @@ body {
 }
 
 .app p {
-  color: #fff;
+  color: #ffffff;
   text-align: center;
 }
 
@@ -83,7 +83,7 @@ body {
     left: 10%;
     width: 80%;
     height: 80%;
-    background-color: #fff;
+    background-color: #ffffff;
     border: 2px solid #333;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   }
