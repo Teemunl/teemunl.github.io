@@ -10,11 +10,11 @@
 
 <body>
   <div class="desktop">
-    <div class="app" onclick="window.open('https://github.com/Teemunl', '_blank')">
+    <div class="app" id="github-app">
       <img src="github-icon.png" alt="GitHub">
       <p>GitHub</p>
     </div>
-    <div class="app" onclick="window.open('Liimatta_Teemu.pdf', '_blank')">
+    <div class="app" id="cv-app">
       <img src="cv-icon.png" alt="CV">
       <p>CV</p>
     </div>
@@ -26,9 +26,11 @@
     <pre id="terminal-output"></pre>
     <input type="text" id="terminal-input" autofocus>
   </div>
+  <div class="simple-container" id="simple-container">
+    <button class="close-btn" id="close-btn">X</button>
+    <iframe id="container-iframe" width="100%" height="100%"></iframe>
+  </div>
   <script src="scripts.js"></script>
 </body>
 
 </html>
-
-
