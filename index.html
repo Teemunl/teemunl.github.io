@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teemu's Portfolio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="desktop">
+    <div class="app" onclick="window.open('https://github.com/Teemunl', '_blank')">
+      <img src="github-icon.png" alt="GitHub">
+      <p>GitHub</p>
+    </div>
+    <div class="app" onclick="window.open('Liimatta_Teemu.pdf', '_blank')">
+      <img src="cv-icon.png" alt="CV">
+      <p>CV</p>
+    </div>
+  </div>
+  <div class="taskbar">
+    <button class="taskbar-btn" onclick="toggleTerminal()">Terminal</button>
+  </div>
+  <div class="terminal" id="terminal">
+    <pre id="terminal-output"></pre>
+    <input type="text" id="terminal-input" autofocus>
+  </div>
+  <script src="scripts.js"></script>
+</body>
+
+</html>
+
+
