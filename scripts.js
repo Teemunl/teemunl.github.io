@@ -5,6 +5,7 @@ const githubApp = document.getElementById('github-app');
 const cvApp = document.getElementById('cv-app');
 const simpleContainer = document.getElementById('simple-container');
 const closeBtn = document.getElementById('close-btn');
+const pongApp = document.getElementById('pong-app');
 
 terminalInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
@@ -54,6 +55,7 @@ cvApp.addEventListener('click', () => {
 closeBtn.addEventListener('click', () => {
   closeApp();
 });
+
 function openCV() {
     const pdfRepoUrl = 'https://github.com/Teemunl/teemunl.github.io/raw/main/Liimatta_Teemu.pdf';
     const content = `
@@ -88,14 +90,16 @@ async function openGitHub() {
     const data = await fetchGitHubData();
     if (data) {
       const content = `
-        <h2>${"Teemu Liimatta"}</h2>
-        <img src="${data.avatar_url}" width="100" height="100">
-        <p>Username: ${data.login}</p>
-        <p>Public Repositories: ${data.repos_url}</p>
-        <p>Followers: ${data.followers}</p>
-        <p>Following: ${data.following}</p>
-        <a href="${data.html_url}" target="_blank">Visit Profile</a>
-      `;
+      <div style="background-color: white;">
+      <h2>${"Teemu Liimatta"}</h2>
+      <img src="${data.avatar_url}" width="100" height="100">
+      <p>Username: ${data.login}</p>
+      <p>Public Repositories: ${data.repos_url}</p>
+      <p>Followers: ${data.followers}</p>
+      <p>Following: ${data.following}</p>
+      <a href="${data.html_url}" target="_blank">Visit Profile</a>
+    </div>
+    `;
   
       document.getElementById('container-content').innerHTML = content;
       simpleContainer.style.display = 'block';
@@ -106,4 +110,12 @@ async function openGitHub() {
 
 githubApp.addEventListener('click', () => {
     openGitHub();
+});
+
+pongApp.addEventListener('click', () => {
+  const content = `
+  <iframe src="pong/index.html" width="100%" height="540" frameborder="0"></iframe>
+  `;
+  document.getElementById('container-content').innerHTML = content;
+  simpleContainer.style.display = 'block';
 });

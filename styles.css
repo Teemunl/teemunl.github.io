@@ -14,7 +14,7 @@ body {
   height: 95vh;
 }
 
-.app {
+.app { 
   display: flex;
   flex-direction: column;
   align-items: left;
@@ -81,12 +81,11 @@ body {
     display: none;
     position: absolute;
     top: 10%;
-    left: 10%;
+    left: 25%;
     width: 50%;
-    height: 50%;
-    background-color: #ffffff;
-    border: 2px solid #333;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    height: 80%;
+    background-color: #ffffff00;
+    border: 2px solid #33333300;
   }
   
   #container-iframe {
@@ -95,12 +94,18 @@ body {
   }
   
   .close-btn {
+
     position: absolute;
     top: 0;
     right: 0;
-    background-color: #f00;
+    background-color: #ff0000;
     color: #fff;
     border: none;
     padding: 0.25rem 0.5rem;
     cursor: pointer;
   }
+  
+  .close-btn:hover {
+    background-color: #290c0c;
+  }
+  
