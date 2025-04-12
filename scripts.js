@@ -6,6 +6,9 @@ const cvApp = document.getElementById('cv-app');
 const simpleContainer = document.getElementById('simple-container');
 const closeBtn = document.getElementById('close-btn');
 const pongApp = document.getElementById('pong-app');
+const startBtn = document.getElementById('start-btn');
+const startMenu = document.getElementById('start-menu');
+const terminalMenuItem = document.getElementById('terminal-menu-item');
 
 terminalInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
@@ -17,14 +20,31 @@ terminalInput.addEventListener('keydown', (e) => {
   }
 });
 
-function toggleTerminal() {
-  if (terminal.style.display === 'none') {
-    
-      terminalOutput.textContent += 'Commands available: cls, help, cv, github\n';
-    terminal.style.display = 'block';
+// Toggle start menu
+startBtn.addEventListener('click', () => {
+  if (startMenu.style.display === 'none' || startMenu.style.display === '') {
+    startMenu.style.display = 'block';
   } else {
-    terminal.style.display = 'none';
+    startMenu.style.display = 'none';
   }
+});
+
+// Close start menu when clicking elsewhere on the page
+document.addEventListener('click', (e) => {
+  if (!startBtn.contains(e.target) && !startMenu.contains(e.target)) {
+    startMenu.style.display = 'none';
+  }
+});
+
+// Open terminal from start menu
+terminalMenuItem.addEventListener('click', () => {
+  startMenu.style.display = 'none';
+  openTerminal();
+});
+
+function openTerminal() {
+  terminalOutput.textContent += 'Commands available: cls, help, cv, github\n';
+  terminal.style.display = 'block';
 }
 
 function processCommand(command) {
