@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teemu's Portfolio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="desktop">
+    <div class="app" id="github-app">
+      <img src="github-icon.png" alt="GitHub">
+      <p>GitHub</p>
+    </div>
+    <div class="app" id="cv-app">
+      <img src="cv-icon.png" alt="CV">
+      <p>CV</p>
+    </div>
+    <div class="app" id="pong-app">
+      <img src="pong.png" alt="PONG">
+      <p>Pong</p>
+    </div>
+  </div>
+  <div class="pong">
+
+  <div class="taskbar">
+    <button class="start-btn" id="start-btn">Start</button>
+    <div class="start-menu" id="start-menu">
+      <div class="menu-item" id="terminal-menu-item">
+        <img src="terminal-icon.png" alt="Terminal">
+        <span>Terminal</span>
+      </div>
+    </div>
+  </div>
+  <div class="terminal" id="terminal">
+    <div class="terminal-title-bar">
+      <div class="terminal-title">Terminal</div>
+      <div class="terminal-controls">
+        <button class="terminal-minimize">_</button>
+        <button class="terminal-maximize">□</button>
+        <button class="terminal-close">×</button>
+      </div>
+    </div>
+    <div class="terminal-content">
+      <pre id="terminal-output"></pre>
+      <input type="text" id="terminal-input" autofocus>
+    </div>
+  </div>
+  <div class="simple-container" id="simple-container">
+    <button class="close-btn" id="close-btn">X</button>
+    <div id="container-content"></div>
+  </div>
+  <script src="scripts.js"></script>
+</body>
+
+</html>
