@@ -35,8 +35,18 @@
     </div>
   </div>
   <div class="terminal" id="terminal">
-    <pre id="terminal-output"></pre>
-    <input type="text" id="terminal-input" autofocus>
+    <div class="terminal-title-bar">
+      <div class="terminal-title">Terminal</div>
+      <div class="terminal-controls">
+        <button class="terminal-minimize">_</button>
+        <button class="terminal-maximize">□</button>
+        <button class="terminal-close">×</button>
+      </div>
+    </div>
+    <div class="terminal-content">
+      <pre id="terminal-output"></pre>
+      <input type="text" id="terminal-input" autofocus>
+    </div>
   </div>
   <div class="simple-container" id="simple-container">
     <button class="close-btn" id="close-btn">X</button>

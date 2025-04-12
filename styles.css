@@ -87,16 +87,78 @@ body {
 .terminal {
   display: none;
   position: absolute;
-  bottom: 5vh;
-  left: 1rem;
-  width: 40%;
+  bottom: 20vh;
+  left: 20vw;
+  width: 500px;
+  height: 300px;
   background-color: #333;
   color: #0f0;
   font-family: 'Courier New', Courier, monospace;
   font-size: 14px;
-  padding: 1rem;
   border-radius: 5px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  resize: both;
+}
+
+.terminal.maximized {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  border-radius: 0;
+}
+
+.terminal-title-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #444;
+  padding: 5px 10px;
+  cursor: move;
+  user-select: none;
+}
+
+.terminal-title {
+  color: #fff;
+  font-weight: bold;
+}
+
+.terminal-controls {
+  display: flex;
+  gap: 5px;
+}
+
+.terminal-controls button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.terminal-minimize:hover {
+  background-color: #666;
+}
+
+.terminal-maximize:hover {
+  background-color: #666;
+}
+
+.terminal-close:hover {
+  background-color: #f00;
+}
+
+.terminal-content {
+  padding: 10px;
+  height: calc(100% - 34px);
+  overflow-y: auto;
 }
 
 #terminal-input {
@@ -106,6 +168,7 @@ body {
   outline: none;
   width: 100%;
 }
+
 .simple-container {
     display: none;
     position: absolute;

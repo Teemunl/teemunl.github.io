@@ -9,7 +9,64 @@ const pongApp = document.getElementById('pong-app');
 const startBtn = document.getElementById('start-btn');
 const startMenu = document.getElementById('start-menu');
 const terminalMenuItem = document.getElementById('terminal-menu-item');
+const terminalTitleBar = document.querySelector('.terminal-title-bar');
+const terminalMinimizeBtn = document.querySelector('.terminal-minimize');
+const terminalMaximizeBtn = document.querySelector('.terminal-maximize');
+const terminalCloseBtn = document.querySelector('.terminal-close');
 
+// Make terminal draggable
+let isDragging = false;
+let offsetX, offsetY;
+
+terminalTitleBar.addEventListener('mousedown', (e) => {
+  isDragging = true;
+  offsetX = e.clientX - terminal.getBoundingClientRect().left;
+  offsetY = e.clientY - terminal.getBoundingClientRect().top;
+  
+  // Prevent text selection during drag
+  e.preventDefault();
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+  
+  // Don't move if maximized
+  if (terminal.classList.contains('maximized')) return;
+  
+  const x = e.clientX - offsetX;
+  const y = e.clientY - offsetY;
+  
+  terminal.style.left = `${x}px`;
+  terminal.style.top = `${y}px`;
+  terminal.style.bottom = 'auto';
+});
+
+document.addEventListener('mouseup', () => {
+  isDragging = false;
+});
+
+// Terminal control buttons
+terminalMinimizeBtn.addEventListener('click', () => {
+  terminal.style.display = 'none';
+});
+
+terminalMaximizeBtn.addEventListener('click', () => {
+  terminal.classList.toggle('maximized');
+  
+  // If no longer maximized, restore last position
+  if (!terminal.classList.contains('maximized')) {
+    if (!terminal.style.top) {
+      terminal.style.top = 'auto';
+      terminal.style.left = '20vw';
+    }
+  }
+});
+
+terminalCloseBtn.addEventListener('click', () => {
+  terminal.style.display = 'none';
+});
+
+// Terminal input handling
 terminalInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
@@ -17,6 +74,9 @@ terminalInput.addEventListener('keydown', (e) => {
     terminalOutput.textContent += `\n> ${command}\n`;
     processCommand(command);
     terminalInput.value = '';
+    
+    // Auto-scroll to bottom
+    terminalOutput.parentElement.scrollTop = terminalOutput.parentElement.scrollHeight;
   }
 });
 
@@ -43,8 +103,11 @@ terminalMenuItem.addEventListener('click', () => {
 });
 
 function openTerminal() {
-  terminalOutput.textContent += 'Commands available: cls, help, cv, github\n';
+  if (terminalOutput.textContent === '') {
+    terminalOutput.textContent = 'Commands available: cls, help, cv, github\n';
+  }
   terminal.style.display = 'block';
+  terminalInput.focus();
 }
 
 function processCommand(command) {
