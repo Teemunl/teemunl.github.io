@@ -64,7 +64,7 @@ let offsetX, offsetY;
 let terminalLastPosition = { top: null, left: null, width: '500px', height: '300px' };
 let githubLastPosition = { top: null, left: null, width: '600px', height: '400px' };
 let cvLastPosition = { top: null, left: null, width: '750px', height: '600px' };
-let pongLastPosition = { top: null, left: null, width: '650px', height: '500px' };
+let pongLastPosition = { top: null, left: null, width: '80%', height: '80%' };
 
 // Set initial size and position for windows
 function setInitialPosition(windowEl, lastPosition, defaultWidth, defaultHeight) {
@@ -589,7 +589,7 @@ function openCVWindow() {
 function openPongWindow() {
   // If we don't have a valid position, set initial
   if (!pongLastPosition.top || !pongLastPosition.left) {
-    setInitialPosition(pongWindow, pongLastPosition, '650px', '500px');
+    setInitialPosition(pongWindow, pongLastPosition, '80%', '80%');
   } else {
     // Restore the last valid position
     pongWindow.style.top = pongLastPosition.top;
@@ -611,7 +611,7 @@ function openPongWindow() {
   
   // Load Pong content
   pongContent.innerHTML = `
-    <iframe src="pong/index.html" width="100%" height="100%" frameborder="0"></iframe>
+    <iframe src="pong/index.html" width="100%" height="100%" frameborder="0" allow="autoplay" allowfullscreen></iframe>
   `;
 }
 
