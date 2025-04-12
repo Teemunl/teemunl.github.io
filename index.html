@@ -5,7 +5,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Teemu's Portfolio</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="styles.css">
+  <script>
+    // Debug info for GitHub Pages deployment
+    window.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM fully loaded');
+      console.log('User Agent:', navigator.userAgent);
+      
+      // Log any errors
+      window.addEventListener('error', (e) => {
+        console.error('Global error:', e.message, 'at', e.filename, ':', e.lineno);
+      });
+    });
+  </script>
 </head>
 
 <body>
@@ -32,6 +46,18 @@
         <img src="terminal-icon.png" alt="Terminal">
         <span>Terminal</span>
       </div>
+      <div class="menu-item" id="github-menu-item">
+        <img src="github-icon.png" alt="GitHub">
+        <span>GitHub</span>
+      </div>
+      <div class="menu-item" id="cv-menu-item">
+        <img src="cv-icon.png" alt="CV">
+        <span>CV</span>
+      </div>
+      <div class="menu-item" id="pong-menu-item">
+        <img src="pong.png" alt="Pong">
+        <span>Pong</span>
+      </div>
     </div>
   </div>
   <div class="terminal" id="terminal">
@@ -46,6 +72,45 @@
     <div class="terminal-content">
       <pre id="terminal-output"></pre>
       <input type="text" id="terminal-input" autofocus>
+    </div>
+  </div>
+  <div class="github-window" id="github-window">
+    <div class="window-title-bar">
+      <div class="window-title">GitHub Profile</div>
+      <div class="window-controls">
+        <button class="window-minimize">_</button>
+        <button class="window-maximize">□</button>
+        <button class="window-close">×</button>
+      </div>
+    </div>
+    <div class="window-content" id="github-content">
+      <!-- GitHub content will be loaded here -->
+    </div>
+  </div>
+  <div class="cv-window" id="cv-window">
+    <div class="window-title-bar">
+      <div class="window-title">Curriculum Vitae</div>
+      <div class="window-controls">
+        <button class="window-minimize">_</button>
+        <button class="window-maximize">□</button>
+        <button class="window-close">×</button>
+      </div>
+    </div>
+    <div class="window-content" id="cv-content">
+      <!-- CV content will be loaded here -->
+    </div>
+  </div>
+  <div class="pong-window" id="pong-window">
+    <div class="window-title-bar">
+      <div class="window-title">Pong Game</div>
+      <div class="window-controls">
+        <button class="window-minimize">_</button>
+        <button class="window-maximize">□</button>
+        <button class="window-close">×</button>
+      </div>
+    </div>
+    <div class="window-content" id="pong-content">
+      <!-- Pong content will be loaded here -->
     </div>
   </div>
   <div class="simple-container" id="simple-container">
