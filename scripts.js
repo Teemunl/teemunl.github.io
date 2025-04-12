@@ -17,10 +17,26 @@ const terminalCloseBtn = document.querySelector('.terminal-close');
 // GitHub window elements
 const githubWindow = document.getElementById('github-window');
 const githubContent = document.getElementById('github-content');
-const githubTitleBar = document.querySelector('.window-title-bar');
-const githubMinimizeBtn = document.querySelector('.window-minimize');
-const githubMaximizeBtn = document.querySelector('.window-maximize');
-const githubCloseBtn = document.querySelector('.window-close');
+const githubTitleBar = githubWindow.querySelector('.window-title-bar');
+const githubMinimizeBtn = githubWindow.querySelector('.window-minimize');
+const githubMaximizeBtn = githubWindow.querySelector('.window-maximize');
+const githubCloseBtn = githubWindow.querySelector('.window-close');
+
+// CV window elements
+const cvWindow = document.getElementById('cv-window');
+const cvContent = document.getElementById('cv-content');
+const cvTitleBar = cvWindow.querySelector('.window-title-bar');
+const cvMinimizeBtn = cvWindow.querySelector('.window-minimize');
+const cvMaximizeBtn = cvWindow.querySelector('.window-maximize');
+const cvCloseBtn = cvWindow.querySelector('.window-close');
+
+// Pong window elements
+const pongWindow = document.getElementById('pong-window');
+const pongContent = document.getElementById('pong-content');
+const pongTitleBar = pongWindow.querySelector('.window-title-bar');
+const pongMinimizeBtn = pongWindow.querySelector('.window-minimize');
+const pongMaximizeBtn = pongWindow.querySelector('.window-maximize');
+const pongCloseBtn = pongWindow.querySelector('.window-close');
 
 // Desktop and menu elements
 const githubApp = document.getElementById('github-app');
@@ -32,11 +48,14 @@ const startBtn = document.getElementById('start-btn');
 const startMenu = document.getElementById('start-menu');
 const terminalMenuItem = document.getElementById('terminal-menu-item');
 const githubMenuItem = document.getElementById('github-menu-item');
+const cvMenuItem = document.getElementById('cv-menu-item');
+const pongMenuItem = document.getElementById('pong-menu-item');
 
 // Add debug logging if elements aren't found
 if (!terminal) debug('Terminal element not found!');
 if (!githubWindow) debug('GitHub window element not found!');
-if (!githubMenuItem) debug('GitHub menu item not found!');
+if (!cvWindow) debug('CV window element not found!');
+if (!pongWindow) debug('Pong window element not found!');
 
 // Window tracking variables
 let isDragging = false;
@@ -44,6 +63,8 @@ let currentWindow = null;
 let offsetX, offsetY;
 let terminalLastPosition = { top: null, left: null, width: '500px', height: '300px' };
 let githubLastPosition = { top: null, left: null, width: '600px', height: '400px' };
+let cvLastPosition = { top: null, left: null, width: '750px', height: '600px' };
+let pongLastPosition = { top: null, left: null, width: '650px', height: '500px' };
 
 // Set initial size and position for windows
 function setInitialPosition(windowEl, lastPosition, defaultWidth, defaultHeight) {
@@ -138,11 +159,23 @@ function initDragWindow(windowEl, titleBarEl, lastPositionObj) {
     offsetY = e.clientY - windowEl.getBoundingClientRect().top;
     
     // Bring window to front
-    windowEl.style.zIndex = 100;
+    bringToFront(windowEl);
     
     // Prevent text selection during drag
     e.preventDefault();
   });
+}
+
+// Bring a window to the front
+function bringToFront(windowEl) {
+  // Reset z-index for all windows
+  terminal.style.zIndex = 50;
+  githubWindow.style.zIndex = 50;
+  cvWindow.style.zIndex = 50;
+  pongWindow.style.zIndex = 50;
+  
+  // Set the active window to front
+  windowEl.style.zIndex = 100;
 }
 
 // Initialize window controls
@@ -189,14 +222,23 @@ function initWindowControls(windowEl, minimizeBtn, maximizeBtn, closeBtn, lastPo
       keepInBounds(windowEl, lastPositionObj);
     }
   });
+  
+  // Add click handler to bring window to front
+  windowEl.addEventListener('click', () => {
+    bringToFront(windowEl);
+  });
 }
 
-// Initialize both windows
+// Initialize all windows
 initDragWindow(terminal, terminalTitleBar, terminalLastPosition);
 initDragWindow(githubWindow, githubTitleBar, githubLastPosition);
+initDragWindow(cvWindow, cvTitleBar, cvLastPosition);
+initDragWindow(pongWindow, pongTitleBar, pongLastPosition);
 
 initWindowControls(terminal, terminalMinimizeBtn, terminalMaximizeBtn, terminalCloseBtn, terminalLastPosition);
 initWindowControls(githubWindow, githubMinimizeBtn, githubMaximizeBtn, githubCloseBtn, githubLastPosition);
+initWindowControls(cvWindow, cvMinimizeBtn, cvMaximizeBtn, cvCloseBtn, cvLastPosition);
+initWindowControls(pongWindow, pongMinimizeBtn, pongMaximizeBtn, pongCloseBtn, pongLastPosition);
 
 // Handle mouse movement for all windows
 document.addEventListener('mousemove', (e) => {
@@ -215,19 +257,13 @@ document.addEventListener('mousemove', (e) => {
   
   // Track if position is valid based on which window we're moving
   if (currentWindow === terminal) {
-    if (keepInBounds(terminal, terminalLastPosition)) {
-      terminalLastPosition.top = terminal.style.top;
-      terminalLastPosition.left = terminal.style.left;
-      terminalLastPosition.width = terminal.style.width;
-      terminalLastPosition.height = terminal.style.height;
-    }
+    keepInBounds(terminal, terminalLastPosition);
   } else if (currentWindow === githubWindow) {
-    if (keepInBounds(githubWindow, githubLastPosition)) {
-      githubLastPosition.top = githubWindow.style.top;
-      githubLastPosition.left = githubWindow.style.left;
-      githubLastPosition.width = githubWindow.style.width;
-      githubLastPosition.height = githubWindow.style.height;
-    }
+    keepInBounds(githubWindow, githubLastPosition);
+  } else if (currentWindow === cvWindow) {
+    keepInBounds(cvWindow, cvLastPosition);
+  } else if (currentWindow === pongWindow) {
+    keepInBounds(pongWindow, pongLastPosition);
   }
 });
 
@@ -240,6 +276,10 @@ document.addEventListener('mouseup', () => {
       keepInBounds(terminal, terminalLastPosition);
     } else if (currentWindow === githubWindow) {
       keepInBounds(githubWindow, githubLastPosition);
+    } else if (currentWindow === cvWindow) {
+      keepInBounds(cvWindow, cvLastPosition);
+    } else if (currentWindow === pongWindow) {
+      keepInBounds(pongWindow, pongLastPosition);
     }
     
     currentWindow = null;
@@ -267,6 +307,28 @@ window.addEventListener('resize', () => {
       githubWindow.style.left = '0';
     } else {
       keepInBounds(githubWindow, githubLastPosition);
+    }
+  }
+  
+  if (cvWindow.style.display === 'block') {
+    if (cvWindow.classList.contains('maximized')) {
+      cvWindow.style.width = '100%';
+      cvWindow.style.height = '100%';
+      cvWindow.style.top = '0';
+      cvWindow.style.left = '0';
+    } else {
+      keepInBounds(cvWindow, cvLastPosition);
+    }
+  }
+  
+  if (pongWindow.style.display === 'block') {
+    if (pongWindow.classList.contains('maximized')) {
+      pongWindow.style.width = '100%';
+      pongWindow.style.height = '100%';
+      pongWindow.style.top = '0';
+      pongWindow.style.left = '0';
+    } else {
+      keepInBounds(pongWindow, pongLastPosition);
     }
   }
 });
@@ -301,22 +363,55 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// Open terminal from start menu
+// Open windows from start menu
 terminalMenuItem.addEventListener('click', () => {
   startMenu.style.display = 'none';
   openTerminal();
 });
 
-// Open GitHub from start menu
 githubMenuItem.addEventListener('click', () => {
   startMenu.style.display = 'none';
   openGitHubWindow();
 });
 
+cvMenuItem.addEventListener('click', () => {
+  startMenu.style.display = 'none';
+  openCVWindow();
+});
+
+pongMenuItem.addEventListener('click', () => {
+  startMenu.style.display = 'none';
+  openPongWindow();
+});
+
+// Process terminal commands
+function processCommand(command) {
+  switch (command.toLowerCase()) {
+    case 'cls':
+      terminalOutput.textContent = '';
+      break;
+    case 'help':
+      terminalOutput.textContent += 'Commands available: cls, help, cv, github, pong\n';
+      break;
+    case 'cv':
+      openCVWindow();
+      break;
+    case 'github':
+      openGitHubWindow();
+      break;
+    case 'pong':
+      openPongWindow();
+      break;
+    default:
+      terminalOutput.textContent += `Unknown command: ${command}\n`;
+      terminalOutput.textContent += 'Commands available: cls, help, cv, github, pong\n';
+  }
+}
+
 // Open terminal with proper positioning
 function openTerminal() {
   if (terminalOutput.textContent === '') {
-    terminalOutput.textContent = 'Commands available: cls, help, cv, github\n';
+    terminalOutput.textContent = 'Commands available: cls, help, cv, github, pong\n';
   }
   
   // If we don't have a valid position, set initial
@@ -333,7 +428,7 @@ function openTerminal() {
   }
   
   // Bring to front
-  terminal.style.zIndex = 100;
+  bringToFront(terminal);
   
   terminal.classList.remove('maximized');
   terminal.style.display = 'block';
@@ -341,26 +436,6 @@ function openTerminal() {
   
   // Double check bounds
   keepInBounds(terminal, terminalLastPosition);
-}
-
-function processCommand(command) {
-  switch (command.toLowerCase()) {
-    case 'cls':
-      terminalOutput.textContent = '';
-      break;
-    case 'help':
-      terminalOutput.textContent += 'Commands available: cls, help, cv, github\n';
-      break;
-    case 'cv':
-      window.open('Liimatta_Teemu.pdf', '_blank');
-      break;
-    case 'github':
-      openGitHubWindow();
-      break;
-    default:
-      terminalOutput.textContent += `Unknown command: ${command}\n`;
-      terminalOutput.textContent += 'Commands available: cls, help, cv, github\n';
-  }
 }
 
 // GitHub functionality
@@ -386,7 +461,7 @@ async function fetchGitHubData() {
   }
 }
 
-// Opening GitHub as a window instead of simple container
+// Opening GitHub as a window
 async function openGitHubWindow() {
   // If we don't have a valid position, set initial
   if (!githubLastPosition.top || !githubLastPosition.left) {
@@ -402,7 +477,7 @@ async function openGitHubWindow() {
   }
   
   // Bring to front
-  githubWindow.style.zIndex = 100;
+  bringToFront(githubWindow);
   
   githubWindow.classList.remove('maximized');
   githubWindow.style.display = 'block';
@@ -479,59 +554,84 @@ async function openGitHubWindow() {
   }
 }
 
-// Old GitHub functionality (kept for desktop icon click compatibility)
-async function fetchGitHubDataOld() {
-  try {
-    const response = await fetch('https://api.github.com/users/Teemunl');
-    if (!response.ok) {
-      throw new Error('Failed to fetch GitHub data');
-    }
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    return null;
+// Opening CV as a window
+function openCVWindow() {
+  // If we don't have a valid position, set initial
+  if (!cvLastPosition.top || !cvLastPosition.left) {
+    setInitialPosition(cvWindow, cvLastPosition, '750px', '600px');
+  } else {
+    // Restore the last valid position
+    cvWindow.style.top = cvLastPosition.top;
+    cvWindow.style.left = cvLastPosition.left;
+    cvWindow.style.width = cvLastPosition.width;
+    cvWindow.style.height = cvLastPosition.height;
+    cvWindow.style.bottom = 'auto';
+    cvWindow.style.right = 'auto';
   }
+  
+  // Bring to front
+  bringToFront(cvWindow);
+  
+  cvWindow.classList.remove('maximized');
+  cvWindow.style.display = 'block';
+  
+  // Double check bounds
+  keepInBounds(cvWindow, cvLastPosition);
+  
+  // Load CV content
+  const pdfRepoUrl = 'https://github.com/Teemunl/teemunl.github.io/raw/main/Liimatta_Teemu.pdf';
+  cvContent.innerHTML = `
+    <iframe src="https://docs.google.com/viewer?url=${encodeURIComponent(pdfRepoUrl)}&embedded=true" width="100%" height="100%" frameborder="0"></iframe>
+  `;
 }
 
-// Legacy mode for desktop icon clicks
-function openGitHubLegacy() {
-  openGitHubWindow();
+// Opening Pong as a window
+function openPongWindow() {
+  // If we don't have a valid position, set initial
+  if (!pongLastPosition.top || !pongLastPosition.left) {
+    setInitialPosition(pongWindow, pongLastPosition, '650px', '500px');
+  } else {
+    // Restore the last valid position
+    pongWindow.style.top = pongLastPosition.top;
+    pongWindow.style.left = pongLastPosition.left;
+    pongWindow.style.width = pongLastPosition.width;
+    pongWindow.style.height = pongLastPosition.height;
+    pongWindow.style.bottom = 'auto';
+    pongWindow.style.right = 'auto';
+  }
+  
+  // Bring to front
+  bringToFront(pongWindow);
+  
+  pongWindow.classList.remove('maximized');
+  pongWindow.style.display = 'block';
+  
+  // Double check bounds
+  keepInBounds(pongWindow, pongLastPosition);
+  
+  // Load Pong content
+  pongContent.innerHTML = `
+    <iframe src="pong/index.html" width="100%" height="100%" frameborder="0"></iframe>
+  `;
 }
 
-// Event listeners
-cvApp.addEventListener('click', () => {
-  openCV();
-});
-
+// Event listeners for desktop icons
 githubApp.addEventListener('click', () => {
   openGitHubWindow();
 });
 
-pongApp.addEventListener('click', () => {
-  openPong();
+cvApp.addEventListener('click', () => {
+  openCVWindow();
 });
 
+pongApp.addEventListener('click', () => {
+  openPongWindow();
+});
+
+// Legacy support for simple container
 closeBtn.addEventListener('click', () => {
   closeApp();
 });
-
-function openCV() {
-  const pdfRepoUrl = 'https://github.com/Teemunl/teemunl.github.io/raw/main/Liimatta_Teemu.pdf';
-  const content = `
-    <iframe src="https://docs.google.com/viewer?url=${encodeURIComponent(pdfRepoUrl)}&embedded=true" width="100%" height="540" frameborder="0"></iframe>
-  `;
-  
-  document.getElementById('container-content').innerHTML = content;
-  simpleContainer.style.display = 'block';
-}
-
-function openPong() {
-  const content = `
-    <iframe src="pong/index.html" width="100%" height="540" frameborder="0"></iframe>
-  `;
-  document.getElementById('container-content').innerHTML = content;
-  simpleContainer.style.display = 'block';
-}
 
 function closeApp() {
   document.getElementById('container-content').innerHTML = '';
