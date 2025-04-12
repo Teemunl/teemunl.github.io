@@ -18,6 +18,56 @@ const terminalCloseBtn = document.querySelector('.terminal-close');
 let isDragging = false;
 let offsetX, offsetY;
 
+// Set initial size and position for terminal
+function setInitialTerminalPosition() {
+  // Default size
+  terminal.style.width = '500px';
+  terminal.style.height = '300px';
+  // Default position (centered)
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  terminal.style.left = `${(viewportWidth - 500) / 2}px`;
+  terminal.style.top = `${(viewportHeight - 300) / 2}px`;
+  terminal.style.bottom = 'auto';
+}
+
+// Keep terminal within viewport bounds
+function keepTerminalInBounds() {
+  const rect = terminal.getBoundingClientRect();
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  
+  // Ensure terminal isn't positioned off-screen
+  if (rect.right > viewportWidth) {
+    terminal.style.left = `${viewportWidth - rect.width}px`;
+  }
+  if (rect.bottom > viewportHeight) {
+    terminal.style.top = `${viewportHeight - rect.height}px`;
+  }
+  if (rect.left < 0) {
+    terminal.style.left = '0px';
+  }
+  if (rect.top < 0) {
+    terminal.style.top = '0px';
+  }
+  
+  // Ensure minimum size
+  if (rect.width < 300) {
+    terminal.style.width = '300px';
+  }
+  if (rect.height < 200) {
+    terminal.style.height = '200px';
+  }
+  
+  // Ensure maximum size doesn't exceed viewport
+  if (rect.width > viewportWidth) {
+    terminal.style.width = `${viewportWidth}px`;
+  }
+  if (rect.height > viewportHeight) {
+    terminal.style.height = `${viewportHeight}px`;
+  }
+}
+
 terminalTitleBar.addEventListener('mousedown', (e) => {
   isDragging = true;
   offsetX = e.clientX - terminal.getBoundingClientRect().left;
@@ -39,10 +89,29 @@ document.addEventListener('mousemove', (e) => {
   terminal.style.left = `${x}px`;
   terminal.style.top = `${y}px`;
   terminal.style.bottom = 'auto';
+  
+  // Keep within bounds while dragging
+  keepTerminalInBounds();
 });
 
 document.addEventListener('mouseup', () => {
   isDragging = false;
+});
+
+// Handle window resize events
+window.addEventListener('resize', () => {
+  if (terminal.style.display === 'block') {
+    if (terminal.classList.contains('maximized')) {
+      // Update maximized size
+      terminal.style.width = '100%';
+      terminal.style.height = '100%';
+      terminal.style.top = '0';
+      terminal.style.left = '0';
+    } else {
+      // Keep terminal in bounds when window is resized
+      keepTerminalInBounds();
+    }
+  }
 });
 
 // Terminal control buttons
@@ -53,12 +122,31 @@ terminalMinimizeBtn.addEventListener('click', () => {
 terminalMaximizeBtn.addEventListener('click', () => {
   terminal.classList.toggle('maximized');
   
-  // If no longer maximized, restore last position
-  if (!terminal.classList.contains('maximized')) {
-    if (!terminal.style.top) {
-      terminal.style.top = 'auto';
-      terminal.style.left = '20vw';
+  if (terminal.classList.contains('maximized')) {
+    // Save current position and size for restore
+    terminal.dataset.prevWidth = terminal.style.width;
+    terminal.dataset.prevHeight = terminal.style.height;
+    terminal.dataset.prevTop = terminal.style.top;
+    terminal.dataset.prevLeft = terminal.style.left;
+    
+    // Maximize
+    terminal.style.width = '100%';
+    terminal.style.height = '100%';
+    terminal.style.top = '0';
+    terminal.style.left = '0';
+  } else {
+    // Restore previous position if available
+    if (terminal.dataset.prevWidth) {
+      terminal.style.width = terminal.dataset.prevWidth;
+      terminal.style.height = terminal.dataset.prevHeight;
+      terminal.style.top = terminal.dataset.prevTop;
+      terminal.style.left = terminal.dataset.prevLeft;
+    } else {
+      // Default position if no previous
+      setInitialTerminalPosition();
     }
+    // Ensure restored position is within bounds
+    keepTerminalInBounds();
   }
 });
 
@@ -102,12 +190,21 @@ terminalMenuItem.addEventListener('click', () => {
   openTerminal();
 });
 
+// Open terminal with proper positioning
 function openTerminal() {
   if (terminalOutput.textContent === '') {
     terminalOutput.textContent = 'Commands available: cls, help, cv, github\n';
   }
+  
+  if (!terminal.style.top || !terminal.style.left) {
+    setInitialTerminalPosition();
+  }
+  
   terminal.style.display = 'block';
   terminalInput.focus();
+  
+  // Ensure terminal is within bounds when opened
+  keepTerminalInBounds();
 }
 
 function processCommand(command) {
