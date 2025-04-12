@@ -1,0 +1,28 @@
+{
+  "name": "teemunl-portfolio",
+  "version": "1.0.0",
+  "description": "Teemu's Portfolio Website",
+  "main": "index.html",
+  "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d .",
+    "build": "echo 'No build step required'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Teemunl/teemunl.github.io.git"
+  },
+  "keywords": [
+    "portfolio",
+    "website"
+  ],
+  "author": "Teemu Liimatta",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Teemunl/teemunl.github.io/issues"
+  },
+  "homepage": "https://teemunl.github.io",
+  "devDependencies": {
+    "gh-pages": "^6.1.1"
+  }
+} 
