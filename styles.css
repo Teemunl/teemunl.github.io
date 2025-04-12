@@ -104,6 +104,16 @@ body {
   z-index: 50;
 }
 
+.terminal:not(.maximized)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 15px;
+  height: 15px;
+  cursor: nwse-resize;
+}
+
 .terminal.maximized {
   width: 100% !important;
   height: 100% !important;

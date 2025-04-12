@@ -17,6 +17,7 @@ const terminalCloseBtn = document.querySelector('.terminal-close');
 // Make terminal draggable
 let isDragging = false;
 let offsetX, offsetY;
+let lastValidPosition = { top: null, left: null, width: '500px', height: '300px' };
 
 // Set initial size and position for terminal
 function setInitialTerminalPosition() {
@@ -29,6 +30,15 @@ function setInitialTerminalPosition() {
   terminal.style.left = `${(viewportWidth - 500) / 2}px`;
   terminal.style.top = `${(viewportHeight - 300) / 2}px`;
   terminal.style.bottom = 'auto';
+  terminal.style.right = 'auto';
+  
+  // Save this position as last valid
+  lastValidPosition = {
+    top: terminal.style.top,
+    left: terminal.style.left,
+    width: terminal.style.width,
+    height: terminal.style.height
+  };
 }
 
 // Keep terminal within viewport bounds
@@ -36,39 +46,65 @@ function keepTerminalInBounds() {
   const rect = terminal.getBoundingClientRect();
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
+  let positionChanged = false;
   
   // Ensure terminal isn't positioned off-screen
   if (rect.right > viewportWidth) {
     terminal.style.left = `${viewportWidth - rect.width}px`;
+    positionChanged = true;
   }
   if (rect.bottom > viewportHeight) {
     terminal.style.top = `${viewportHeight - rect.height}px`;
+    positionChanged = true;
   }
   if (rect.left < 0) {
     terminal.style.left = '0px';
+    positionChanged = true;
   }
   if (rect.top < 0) {
     terminal.style.top = '0px';
+    positionChanged = true;
   }
   
   // Ensure minimum size
   if (rect.width < 300) {
     terminal.style.width = '300px';
+    positionChanged = true;
   }
   if (rect.height < 200) {
     terminal.style.height = '200px';
+    positionChanged = true;
   }
   
   // Ensure maximum size doesn't exceed viewport
   if (rect.width > viewportWidth) {
     terminal.style.width = `${viewportWidth}px`;
+    positionChanged = true;
   }
   if (rect.height > viewportHeight) {
     terminal.style.height = `${viewportHeight}px`;
+    positionChanged = true;
   }
+  
+  // Save current position as last valid if we have a good position
+  if (!positionChanged && terminal.style.top && terminal.style.left) {
+    lastValidPosition = {
+      top: terminal.style.top,
+      left: terminal.style.left,
+      width: terminal.style.width,
+      height: terminal.style.height
+    };
+  }
+  
+  return !positionChanged;
 }
 
 terminalTitleBar.addEventListener('mousedown', (e) => {
+  // Ignore if clicking controls
+  if (e.target.closest('.terminal-controls')) {
+    return;
+  }
+  
   isDragging = true;
   offsetX = e.clientX - terminal.getBoundingClientRect().left;
   offsetY = e.clientY - terminal.getBoundingClientRect().top;
@@ -89,13 +125,33 @@ document.addEventListener('mousemove', (e) => {
   terminal.style.left = `${x}px`;
   terminal.style.top = `${y}px`;
   terminal.style.bottom = 'auto';
+  terminal.style.right = 'auto';
   
-  // Keep within bounds while dragging
-  keepTerminalInBounds();
+  // Track if position is valid
+  if (keepTerminalInBounds()) {
+    lastValidPosition = {
+      top: terminal.style.top,
+      left: terminal.style.left,
+      width: terminal.style.width,
+      height: terminal.style.height
+    };
+  }
 });
 
 document.addEventListener('mouseup', () => {
-  isDragging = false;
+  if (isDragging) {
+    isDragging = false;
+    // Ensure we end with a valid position
+    keepTerminalInBounds();
+  }
+});
+
+// Add a listener for resize events on the terminal itself
+terminal.addEventListener('mouseup', () => {
+  // If we just finished resizing, save valid position
+  if (!isDragging && !terminal.classList.contains('maximized')) {
+    keepTerminalInBounds();
+  }
 });
 
 // Handle window resize events
@@ -120,31 +176,29 @@ terminalMinimizeBtn.addEventListener('click', () => {
 });
 
 terminalMaximizeBtn.addEventListener('click', () => {
-  terminal.classList.toggle('maximized');
-  
-  if (terminal.classList.contains('maximized')) {
+  if (!terminal.classList.contains('maximized')) {
     // Save current position and size for restore
-    terminal.dataset.prevWidth = terminal.style.width;
-    terminal.dataset.prevHeight = terminal.style.height;
-    terminal.dataset.prevTop = terminal.style.top;
-    terminal.dataset.prevLeft = terminal.style.left;
+    lastValidPosition = {
+      top: terminal.style.top,
+      left: terminal.style.left,
+      width: terminal.style.width,
+      height: terminal.style.height
+    };
     
     // Maximize
+    terminal.classList.add('maximized');
     terminal.style.width = '100%';
     terminal.style.height = '100%';
     terminal.style.top = '0';
     terminal.style.left = '0';
   } else {
-    // Restore previous position if available
-    if (terminal.dataset.prevWidth) {
-      terminal.style.width = terminal.dataset.prevWidth;
-      terminal.style.height = terminal.dataset.prevHeight;
-      terminal.style.top = terminal.dataset.prevTop;
-      terminal.style.left = terminal.dataset.prevLeft;
-    } else {
-      // Default position if no previous
-      setInitialTerminalPosition();
-    }
+    // Restore previous position
+    terminal.classList.remove('maximized');
+    terminal.style.width = lastValidPosition.width;
+    terminal.style.height = lastValidPosition.height;
+    terminal.style.top = lastValidPosition.top;
+    terminal.style.left = lastValidPosition.left;
+    
     // Ensure restored position is within bounds
     keepTerminalInBounds();
   }
@@ -196,14 +250,24 @@ function openTerminal() {
     terminalOutput.textContent = 'Commands available: cls, help, cv, github\n';
   }
   
-  if (!terminal.style.top || !terminal.style.left) {
+  // If we don't have a valid position, set initial
+  if (!lastValidPosition.top || !lastValidPosition.left) {
     setInitialTerminalPosition();
+  } else {
+    // Restore the last valid position
+    terminal.style.top = lastValidPosition.top;
+    terminal.style.left = lastValidPosition.left;
+    terminal.style.width = lastValidPosition.width;
+    terminal.style.height = lastValidPosition.height;
+    terminal.style.bottom = 'auto';
+    terminal.style.right = 'auto';
   }
   
+  terminal.classList.remove('maximized');
   terminal.style.display = 'block';
   terminalInput.focus();
   
-  // Ensure terminal is within bounds when opened
+  // Double check bounds
   keepTerminalInBounds();
 }
 
