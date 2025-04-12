@@ -5,9 +5,24 @@ function debug(message) {
 
 debug('Script loading...');
 
+// Terminal elements
 const terminal = document.getElementById('terminal');
 const terminalInput = document.getElementById('terminal-input');
 const terminalOutput = document.getElementById('terminal-output');
+const terminalTitleBar = document.querySelector('.terminal-title-bar');
+const terminalMinimizeBtn = document.querySelector('.terminal-minimize');
+const terminalMaximizeBtn = document.querySelector('.terminal-maximize');
+const terminalCloseBtn = document.querySelector('.terminal-close');
+
+// GitHub window elements
+const githubWindow = document.getElementById('github-window');
+const githubContent = document.getElementById('github-content');
+const githubTitleBar = document.querySelector('.window-title-bar');
+const githubMinimizeBtn = document.querySelector('.window-minimize');
+const githubMaximizeBtn = document.querySelector('.window-maximize');
+const githubCloseBtn = document.querySelector('.window-close');
+
+// Desktop and menu elements
 const githubApp = document.getElementById('github-app');
 const cvApp = document.getElementById('cv-app');
 const simpleContainer = document.getElementById('simple-container');
@@ -16,163 +31,218 @@ const pongApp = document.getElementById('pong-app');
 const startBtn = document.getElementById('start-btn');
 const startMenu = document.getElementById('start-menu');
 const terminalMenuItem = document.getElementById('terminal-menu-item');
+const githubMenuItem = document.getElementById('github-menu-item');
 
 // Add debug logging if elements aren't found
 if (!terminal) debug('Terminal element not found!');
-if (!terminalInput) debug('Terminal input not found!');
-if (!startBtn) debug('Start button not found!');
-if (!startMenu) debug('Start menu not found!');
-if (!terminalMenuItem) debug('Terminal menu item not found!');
+if (!githubWindow) debug('GitHub window element not found!');
+if (!githubMenuItem) debug('GitHub menu item not found!');
 
-// Find all elements with terminal-* classes
-const terminalTitleBar = document.querySelector('.terminal-title-bar');
-const terminalMinimizeBtn = document.querySelector('.terminal-minimize');
-const terminalMaximizeBtn = document.querySelector('.terminal-maximize');
-const terminalCloseBtn = document.querySelector('.terminal-close');
-
-// Add debug logging if elements aren't found
-if (!terminalTitleBar) debug('Terminal title bar not found!');
-if (!terminalMinimizeBtn) debug('Terminal minimize button not found!');
-if (!terminalMaximizeBtn) debug('Terminal maximize button not found!');
-if (!terminalCloseBtn) debug('Terminal close button not found!');
-
-// Make terminal draggable
+// Window tracking variables
 let isDragging = false;
+let currentWindow = null;
 let offsetX, offsetY;
-let lastValidPosition = { top: null, left: null, width: '500px', height: '300px' };
+let terminalLastPosition = { top: null, left: null, width: '500px', height: '300px' };
+let githubLastPosition = { top: null, left: null, width: '600px', height: '400px' };
 
-// Set initial size and position for terminal
-function setInitialTerminalPosition() {
+// Set initial size and position for windows
+function setInitialPosition(windowEl, lastPosition, defaultWidth, defaultHeight) {
   // Default size
-  terminal.style.width = '500px';
-  terminal.style.height = '300px';
+  windowEl.style.width = defaultWidth;
+  windowEl.style.height = defaultHeight;
+  
   // Default position (centered)
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
-  terminal.style.left = `${(viewportWidth - 500) / 2}px`;
-  terminal.style.top = `${(viewportHeight - 300) / 2}px`;
-  terminal.style.bottom = 'auto';
-  terminal.style.right = 'auto';
+  windowEl.style.left = `${(viewportWidth - parseInt(defaultWidth)) / 2}px`;
+  windowEl.style.top = `${(viewportHeight - parseInt(defaultHeight)) / 2}px`;
+  windowEl.style.bottom = 'auto';
+  windowEl.style.right = 'auto';
   
   // Save this position as last valid
-  lastValidPosition = {
-    top: terminal.style.top,
-    left: terminal.style.left,
-    width: terminal.style.width,
-    height: terminal.style.height
-  };
+  lastPosition.top = windowEl.style.top;
+  lastPosition.left = windowEl.style.left;
+  lastPosition.width = windowEl.style.width;
+  lastPosition.height = windowEl.style.height;
+  
+  return lastPosition;
 }
 
-// Keep terminal within viewport bounds
-function keepTerminalInBounds() {
-  const rect = terminal.getBoundingClientRect();
+// Keep windows within viewport bounds
+function keepInBounds(windowEl, lastPosition) {
+  const rect = windowEl.getBoundingClientRect();
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
   let positionChanged = false;
   
-  // Ensure terminal isn't positioned off-screen
+  // Ensure window isn't positioned off-screen
   if (rect.right > viewportWidth) {
-    terminal.style.left = `${viewportWidth - rect.width}px`;
+    windowEl.style.left = `${viewportWidth - rect.width}px`;
     positionChanged = true;
   }
   if (rect.bottom > viewportHeight) {
-    terminal.style.top = `${viewportHeight - rect.height}px`;
+    windowEl.style.top = `${viewportHeight - rect.height}px`;
     positionChanged = true;
   }
   if (rect.left < 0) {
-    terminal.style.left = '0px';
+    windowEl.style.left = '0px';
     positionChanged = true;
   }
   if (rect.top < 0) {
-    terminal.style.top = '0px';
+    windowEl.style.top = '0px';
     positionChanged = true;
   }
   
   // Ensure minimum size
   if (rect.width < 300) {
-    terminal.style.width = '300px';
+    windowEl.style.width = '300px';
     positionChanged = true;
   }
   if (rect.height < 200) {
-    terminal.style.height = '200px';
+    windowEl.style.height = '200px';
     positionChanged = true;
   }
   
   // Ensure maximum size doesn't exceed viewport
   if (rect.width > viewportWidth) {
-    terminal.style.width = `${viewportWidth}px`;
+    windowEl.style.width = `${viewportWidth}px`;
     positionChanged = true;
   }
   if (rect.height > viewportHeight) {
-    terminal.style.height = `${viewportHeight}px`;
+    windowEl.style.height = `${viewportHeight}px`;
     positionChanged = true;
   }
   
   // Save current position as last valid if we have a good position
-  if (!positionChanged && terminal.style.top && terminal.style.left) {
-    lastValidPosition = {
-      top: terminal.style.top,
-      left: terminal.style.left,
-      width: terminal.style.width,
-      height: terminal.style.height
-    };
+  if (!positionChanged && windowEl.style.top && windowEl.style.left) {
+    lastPosition.top = windowEl.style.top;
+    lastPosition.left = windowEl.style.left;
+    lastPosition.width = windowEl.style.width;
+    lastPosition.height = windowEl.style.height;
   }
   
   return !positionChanged;
 }
 
-terminalTitleBar.addEventListener('mousedown', (e) => {
-  // Ignore if clicking controls
-  if (e.target.closest('.terminal-controls')) {
-    return;
-  }
-  
-  isDragging = true;
-  offsetX = e.clientX - terminal.getBoundingClientRect().left;
-  offsetY = e.clientY - terminal.getBoundingClientRect().top;
-  
-  // Prevent text selection during drag
-  e.preventDefault();
-});
+// Initialize drag functionality for a window
+function initDragWindow(windowEl, titleBarEl, lastPositionObj) {
+  titleBarEl.addEventListener('mousedown', (e) => {
+    // Ignore if clicking controls
+    if (e.target.closest('.window-controls') || e.target.closest('.terminal-controls')) {
+      return;
+    }
+    
+    isDragging = true;
+    currentWindow = windowEl;
+    offsetX = e.clientX - windowEl.getBoundingClientRect().left;
+    offsetY = e.clientY - windowEl.getBoundingClientRect().top;
+    
+    // Bring window to front
+    windowEl.style.zIndex = 100;
+    
+    // Prevent text selection during drag
+    e.preventDefault();
+  });
+}
 
+// Initialize window controls
+function initWindowControls(windowEl, minimizeBtn, maximizeBtn, closeBtn, lastPositionObj) {
+  minimizeBtn.addEventListener('click', () => {
+    windowEl.style.display = 'none';
+  });
+  
+  maximizeBtn.addEventListener('click', () => {
+    if (!windowEl.classList.contains('maximized')) {
+      // Save current position and size for restore
+      lastPositionObj.top = windowEl.style.top;
+      lastPositionObj.left = windowEl.style.left;
+      lastPositionObj.width = windowEl.style.width;
+      lastPositionObj.height = windowEl.style.height;
+      
+      // Maximize
+      windowEl.classList.add('maximized');
+      windowEl.style.width = '100%';
+      windowEl.style.height = '100%';
+      windowEl.style.top = '0';
+      windowEl.style.left = '0';
+    } else {
+      // Restore previous position
+      windowEl.classList.remove('maximized');
+      windowEl.style.width = lastPositionObj.width;
+      windowEl.style.height = lastPositionObj.height;
+      windowEl.style.top = lastPositionObj.top;
+      windowEl.style.left = lastPositionObj.left;
+      
+      // Ensure restored position is within bounds
+      keepInBounds(windowEl, lastPositionObj);
+    }
+  });
+  
+  closeBtn.addEventListener('click', () => {
+    windowEl.style.display = 'none';
+  });
+  
+  // Add a listener for resize events on the window
+  windowEl.addEventListener('mouseup', () => {
+    // If we just finished resizing, save valid position
+    if (!isDragging && !windowEl.classList.contains('maximized')) {
+      keepInBounds(windowEl, lastPositionObj);
+    }
+  });
+}
+
+// Initialize both windows
+initDragWindow(terminal, terminalTitleBar, terminalLastPosition);
+initDragWindow(githubWindow, githubTitleBar, githubLastPosition);
+
+initWindowControls(terminal, terminalMinimizeBtn, terminalMaximizeBtn, terminalCloseBtn, terminalLastPosition);
+initWindowControls(githubWindow, githubMinimizeBtn, githubMaximizeBtn, githubCloseBtn, githubLastPosition);
+
+// Handle mouse movement for all windows
 document.addEventListener('mousemove', (e) => {
-  if (!isDragging) return;
+  if (!isDragging || !currentWindow) return;
   
   // Don't move if maximized
-  if (terminal.classList.contains('maximized')) return;
+  if (currentWindow.classList.contains('maximized')) return;
   
   const x = e.clientX - offsetX;
   const y = e.clientY - offsetY;
   
-  terminal.style.left = `${x}px`;
-  terminal.style.top = `${y}px`;
-  terminal.style.bottom = 'auto';
-  terminal.style.right = 'auto';
+  currentWindow.style.left = `${x}px`;
+  currentWindow.style.top = `${y}px`;
+  currentWindow.style.bottom = 'auto';
+  currentWindow.style.right = 'auto';
   
-  // Track if position is valid
-  if (keepTerminalInBounds()) {
-    lastValidPosition = {
-      top: terminal.style.top,
-      left: terminal.style.left,
-      width: terminal.style.width,
-      height: terminal.style.height
-    };
+  // Track if position is valid based on which window we're moving
+  if (currentWindow === terminal) {
+    if (keepInBounds(terminal, terminalLastPosition)) {
+      terminalLastPosition.top = terminal.style.top;
+      terminalLastPosition.left = terminal.style.left;
+      terminalLastPosition.width = terminal.style.width;
+      terminalLastPosition.height = terminal.style.height;
+    }
+  } else if (currentWindow === githubWindow) {
+    if (keepInBounds(githubWindow, githubLastPosition)) {
+      githubLastPosition.top = githubWindow.style.top;
+      githubLastPosition.left = githubWindow.style.left;
+      githubLastPosition.width = githubWindow.style.width;
+      githubLastPosition.height = githubWindow.style.height;
+    }
   }
 });
 
 document.addEventListener('mouseup', () => {
-  if (isDragging) {
+  if (isDragging && currentWindow) {
     isDragging = false;
+    
     // Ensure we end with a valid position
-    keepTerminalInBounds();
-  }
-});
-
-// Add a listener for resize events on the terminal itself
-terminal.addEventListener('mouseup', () => {
-  // If we just finished resizing, save valid position
-  if (!isDragging && !terminal.classList.contains('maximized')) {
-    keepTerminalInBounds();
+    if (currentWindow === terminal) {
+      keepInBounds(terminal, terminalLastPosition);
+    } else if (currentWindow === githubWindow) {
+      keepInBounds(githubWindow, githubLastPosition);
+    }
+    
+    currentWindow = null;
   }
 });
 
@@ -180,54 +250,25 @@ terminal.addEventListener('mouseup', () => {
 window.addEventListener('resize', () => {
   if (terminal.style.display === 'block') {
     if (terminal.classList.contains('maximized')) {
-      // Update maximized size
       terminal.style.width = '100%';
       terminal.style.height = '100%';
       terminal.style.top = '0';
       terminal.style.left = '0';
     } else {
-      // Keep terminal in bounds when window is resized
-      keepTerminalInBounds();
+      keepInBounds(terminal, terminalLastPosition);
     }
   }
-});
-
-// Terminal control buttons
-terminalMinimizeBtn.addEventListener('click', () => {
-  terminal.style.display = 'none';
-});
-
-terminalMaximizeBtn.addEventListener('click', () => {
-  if (!terminal.classList.contains('maximized')) {
-    // Save current position and size for restore
-    lastValidPosition = {
-      top: terminal.style.top,
-      left: terminal.style.left,
-      width: terminal.style.width,
-      height: terminal.style.height
-    };
-    
-    // Maximize
-    terminal.classList.add('maximized');
-    terminal.style.width = '100%';
-    terminal.style.height = '100%';
-    terminal.style.top = '0';
-    terminal.style.left = '0';
-  } else {
-    // Restore previous position
-    terminal.classList.remove('maximized');
-    terminal.style.width = lastValidPosition.width;
-    terminal.style.height = lastValidPosition.height;
-    terminal.style.top = lastValidPosition.top;
-    terminal.style.left = lastValidPosition.left;
-    
-    // Ensure restored position is within bounds
-    keepTerminalInBounds();
+  
+  if (githubWindow.style.display === 'block') {
+    if (githubWindow.classList.contains('maximized')) {
+      githubWindow.style.width = '100%';
+      githubWindow.style.height = '100%';
+      githubWindow.style.top = '0';
+      githubWindow.style.left = '0';
+    } else {
+      keepInBounds(githubWindow, githubLastPosition);
+    }
   }
-});
-
-terminalCloseBtn.addEventListener('click', () => {
-  terminal.style.display = 'none';
 });
 
 // Terminal input handling
@@ -266,6 +307,12 @@ terminalMenuItem.addEventListener('click', () => {
   openTerminal();
 });
 
+// Open GitHub from start menu
+githubMenuItem.addEventListener('click', () => {
+  startMenu.style.display = 'none';
+  openGitHubWindow();
+});
+
 // Open terminal with proper positioning
 function openTerminal() {
   if (terminalOutput.textContent === '') {
@@ -273,28 +320,30 @@ function openTerminal() {
   }
   
   // If we don't have a valid position, set initial
-  if (!lastValidPosition.top || !lastValidPosition.left) {
-    setInitialTerminalPosition();
+  if (!terminalLastPosition.top || !terminalLastPosition.left) {
+    setInitialPosition(terminal, terminalLastPosition, '500px', '300px');
   } else {
     // Restore the last valid position
-    terminal.style.top = lastValidPosition.top;
-    terminal.style.left = lastValidPosition.left;
-    terminal.style.width = lastValidPosition.width;
-    terminal.style.height = lastValidPosition.height;
+    terminal.style.top = terminalLastPosition.top;
+    terminal.style.left = terminalLastPosition.left;
+    terminal.style.width = terminalLastPosition.width;
+    terminal.style.height = terminalLastPosition.height;
     terminal.style.bottom = 'auto';
     terminal.style.right = 'auto';
   }
+  
+  // Bring to front
+  terminal.style.zIndex = 100;
   
   terminal.classList.remove('maximized');
   terminal.style.display = 'block';
   terminalInput.focus();
   
   // Double check bounds
-  keepTerminalInBounds();
+  keepInBounds(terminal, terminalLastPosition);
 }
 
 function processCommand(command) {
-    
   switch (command.toLowerCase()) {
     case 'cls':
       terminalOutput.textContent = '';
@@ -306,7 +355,7 @@ function processCommand(command) {
       window.open('Liimatta_Teemu.pdf', '_blank');
       break;
     case 'github':
-      window.open('https://github.com/Teemunl', '_blank');
+      openGitHubWindow();
       break;
     default:
       terminalOutput.textContent += `Unknown command: ${command}\n`;
@@ -314,8 +363,152 @@ function processCommand(command) {
   }
 }
 
+// GitHub functionality
+async function fetchGitHubData() {
+  try {
+    const response = await fetch('https://api.github.com/users/Teemunl');
+    if (!response.ok) {
+      throw new Error('Failed to fetch GitHub data');
+    }
+    const userData = await response.json();
+    
+    // Get repositories data
+    const reposResponse = await fetch(userData.repos_url);
+    if (!reposResponse.ok) {
+      throw new Error('Failed to fetch repositories data');
+    }
+    const reposData = await reposResponse.json();
+    
+    return { user: userData, repos: reposData };
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+// Opening GitHub as a window instead of simple container
+async function openGitHubWindow() {
+  // If we don't have a valid position, set initial
+  if (!githubLastPosition.top || !githubLastPosition.left) {
+    setInitialPosition(githubWindow, githubLastPosition, '600px', '400px');
+  } else {
+    // Restore the last valid position
+    githubWindow.style.top = githubLastPosition.top;
+    githubWindow.style.left = githubLastPosition.left;
+    githubWindow.style.width = githubLastPosition.width;
+    githubWindow.style.height = githubLastPosition.height;
+    githubWindow.style.bottom = 'auto';
+    githubWindow.style.right = 'auto';
+  }
+  
+  // Bring to front
+  githubWindow.style.zIndex = 100;
+  
+  githubWindow.classList.remove('maximized');
+  githubWindow.style.display = 'block';
+  
+  // Double check bounds
+  keepInBounds(githubWindow, githubLastPosition);
+  
+  // Show loading message
+  githubContent.innerHTML = '<div style="text-align: center; padding: 20px;">Loading GitHub data...</div>';
+  
+  const data = await fetchGitHubData();
+  if (data) {
+    // Create a more visually appealing GitHub profile
+    const { user, repos } = data;
+    
+    // Format repositories list
+    let reposHTML = '';
+    if (repos.length > 0) {
+      reposHTML = '<h3>Repositories</h3><ul class="repo-list">';
+      repos.slice(0, 5).forEach(repo => {
+        reposHTML += `
+          <li class="repo-item">
+            <div class="repo-name">${repo.name}</div>
+            <div class="repo-description">${repo.description || 'No description available'}</div>
+            <div class="repo-meta">
+              <span>⭐ ${repo.stargazers_count}</span>
+              <span>🍴 ${repo.forks_count}</span>
+              <span>${repo.language || 'No language data'}</span>
+            </div>
+          </li>
+        `;
+      });
+      reposHTML += '</ul>';
+    }
+    
+    const content = `
+      <div class="github-profile">
+        <img src="${user.avatar_url}" alt="${user.login}" />
+        <h2>${user.name || user.login}</h2>
+        <p>${user.bio || ''}</p>
+        
+        <div class="github-stats">
+          <div class="github-stat-item">
+            <div class="value">${user.public_repos}</div>
+            <div class="label">Repositories</div>
+          </div>
+          <div class="github-stat-item">
+            <div class="value">${user.followers}</div>
+            <div class="label">Followers</div>
+          </div>
+          <div class="github-stat-item">
+            <div class="value">${user.following}</div>
+            <div class="label">Following</div>
+          </div>
+        </div>
+      </div>
+      
+      ${reposHTML}
+      
+      <div class="github-links">
+        <a href="${user.html_url}" target="_blank" class="github-link">Visit Profile</a>
+        <a href="${user.html_url}?tab=repositories" target="_blank" class="github-link">All Repositories</a>
+      </div>
+    `;
+    
+    githubContent.innerHTML = content;
+  } else {
+    githubContent.innerHTML = `
+      <div style="text-align: center; padding: 20px; color: #ff6b6b;">
+        <h3>Failed to load GitHub data</h3>
+        <p>Please check your internet connection or try again later.</p>
+      </div>
+    `;
+  }
+}
+
+// Old GitHub functionality (kept for desktop icon click compatibility)
+async function fetchGitHubDataOld() {
+  try {
+    const response = await fetch('https://api.github.com/users/Teemunl');
+    if (!response.ok) {
+      throw new Error('Failed to fetch GitHub data');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+// Legacy mode for desktop icon clicks
+function openGitHubLegacy() {
+  openGitHubWindow();
+}
+
+// Event listeners
 cvApp.addEventListener('click', () => {
-    openCV();
+  openCV();
+});
+
+githubApp.addEventListener('click', () => {
+  openGitHubWindow();
+});
+
+pongApp.addEventListener('click', () => {
+  openPong();
 });
 
 closeBtn.addEventListener('click', () => {
@@ -323,65 +516,24 @@ closeBtn.addEventListener('click', () => {
 });
 
 function openCV() {
-    const pdfRepoUrl = 'https://github.com/Teemunl/teemunl.github.io/raw/main/Liimatta_Teemu.pdf';
-    const content = `
-      <iframe src="https://docs.google.com/viewer?url=${encodeURIComponent(pdfRepoUrl)}&embedded=true" width="100%" height="540" frameborder="0"></iframe>
-    `;
-    
-    document.getElementById('container-content').innerHTML= content;
-    simpleContainer.style.display = 'block';
-  }
+  const pdfRepoUrl = 'https://github.com/Teemunl/teemunl.github.io/raw/main/Liimatta_Teemu.pdf';
+  const content = `
+    <iframe src="https://docs.google.com/viewer?url=${encodeURIComponent(pdfRepoUrl)}&embedded=true" width="100%" height="540" frameborder="0"></iframe>
+  `;
   
-  cvApp.addEventListener('click', () => {
-    openCV();
-  });
-function closeApp() {
-        document.getElementById('container-content').innerHTML = '';
-        simpleContainer.style.display = 'none';
+  document.getElementById('container-content').innerHTML = content;
+  simpleContainer.style.display = 'block';
 }
 
-async function fetchGitHubData() {
-    try {
-      const response = await fetch('https://api.github.com/users/Teemunl');
-      if (!response.ok) {
-        throw new Error('Failed to fetch GitHub data');
-      }
-      return await response.json();
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
-  }
-async function openGitHub() {
-    const data = await fetchGitHubData();
-    if (data) {
-      const content = `
-      <div style="background-color: white;">
-      <h2>${"Teemu Liimatta"}</h2>
-      <img src="${data.avatar_url}" width="100" height="100">
-      <p>Username: ${data.login}</p>
-      <p>Public Repositories: ${data.repos_url}</p>
-      <p>Followers: ${data.followers}</p>
-      <p>Following: ${data.following}</p>
-      <a href="${data.html_url}" target="_blank">Visit Profile</a>
-    </div>
-    `;
-  
-      document.getElementById('container-content').innerHTML = content;
-      simpleContainer.style.display = 'block';
-    } else {
-      alert('Failed to fetch GitHub data. Please try again later.');
-    }
-  }
-
-githubApp.addEventListener('click', () => {
-    openGitHub();
-});
-
-pongApp.addEventListener('click', () => {
+function openPong() {
   const content = `
-  <iframe src="pong/index.html" width="100%" height="540" frameborder="0"></iframe>
+    <iframe src="pong/index.html" width="100%" height="540" frameborder="0"></iframe>
   `;
   document.getElementById('container-content').innerHTML = content;
   simpleContainer.style.display = 'block';
-});
+}
+
+function closeApp() {
+  document.getElementById('container-content').innerHTML = '';
+  simpleContainer.style.display = 'none';
+}
