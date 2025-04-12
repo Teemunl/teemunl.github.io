@@ -1,3 +1,10 @@
+// Debug function
+function debug(message) {
+  console.log(`[DEBUG] ${message}`);
+}
+
+debug('Script loading...');
+
 const terminal = document.getElementById('terminal');
 const terminalInput = document.getElementById('terminal-input');
 const terminalOutput = document.getElementById('terminal-output');
@@ -9,10 +16,25 @@ const pongApp = document.getElementById('pong-app');
 const startBtn = document.getElementById('start-btn');
 const startMenu = document.getElementById('start-menu');
 const terminalMenuItem = document.getElementById('terminal-menu-item');
+
+// Add debug logging if elements aren't found
+if (!terminal) debug('Terminal element not found!');
+if (!terminalInput) debug('Terminal input not found!');
+if (!startBtn) debug('Start button not found!');
+if (!startMenu) debug('Start menu not found!');
+if (!terminalMenuItem) debug('Terminal menu item not found!');
+
+// Find all elements with terminal-* classes
 const terminalTitleBar = document.querySelector('.terminal-title-bar');
 const terminalMinimizeBtn = document.querySelector('.terminal-minimize');
 const terminalMaximizeBtn = document.querySelector('.terminal-maximize');
 const terminalCloseBtn = document.querySelector('.terminal-close');
+
+// Add debug logging if elements aren't found
+if (!terminalTitleBar) debug('Terminal title bar not found!');
+if (!terminalMinimizeBtn) debug('Terminal minimize button not found!');
+if (!terminalMaximizeBtn) debug('Terminal maximize button not found!');
+if (!terminalCloseBtn) debug('Terminal close button not found!');
 
 // Make terminal draggable
 let isDragging = false;

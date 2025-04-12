@@ -5,7 +5,7 @@
   "main": "index.html",
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d .",
+    "deploy": "gh-pages -b main -d .",
     "build": "echo 'No build step required'"
   },
   "repository": {
